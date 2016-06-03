@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.limpoxe.demo">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:name="com.limpoxe.demo.MyApplication">
+
+        <activity android:name="com.limpoxe.demo.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 这里注册服务仅仅是为了创建出多个进程  服务本身无用 -->
+        <service android:name=".service.Service1" android:process=":p1"/>
+        <service android:name=".service.Service2" android:process=":p2"/>
+        <service android:name=".service.Service3" android:process=":p3"/>
+
+    </application>
+
+</manifest>

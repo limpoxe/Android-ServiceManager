@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.limpoxe.support.servicemanager">
+
+    <application>
+
+        <provider
+            android:authorities="${applicationId}"
+            android:name="com.limpoxe.support.servicemanager.ServiceProvider"/>
+
+    </application>
+
+</manifest>
