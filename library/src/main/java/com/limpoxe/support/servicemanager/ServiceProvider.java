@@ -2,6 +2,7 @@ package com.limpoxe.support.servicemanager;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -22,8 +23,8 @@ import java.util.Map;
 /**
  * Created by cailiming on 16/3/11.
  *
- * 利用ContentProvider实现同步跨进程调用
- *
+ * 利用ContentProvider实现同步跨进程调用，如果contentprovider所在进程退出，
+ * 其他服务进程注册的binder和service信息会丢失
  */
 public class ServiceProvider extends ContentProvider {
 
@@ -39,6 +40,11 @@ public class ServiceProvider extends ContentProvider {
     public static final String QUERY_INTERFACE_RESULT = "query_interface_result";
 
     private static Uri CONTENT_URI;
+
+    //服务名：进程ID
+    private static Hashtable<String, Recorder> allServiceList = new Hashtable<>();
+    //进程ID：进程Binder
+    private static Hashtable<Integer, IBinder> processBinder = new Hashtable<>();
 
     public static Uri buildUri() {
         if (CONTENT_URI == null) {
@@ -72,7 +78,12 @@ public class ServiceProvider extends ContentProvider {
                         while(iterator.hasNext()) {
                             Map.Entry<String, Recorder> entry = iterator.next();
                             if (entry.getValue().pid.equals(pid)) {
+                                Log.w("ServiceProvider", "Service Die, remove");
                                 iterator.remove();
+                                //通知持有服务的客户端清理缓存
+                                Intent intent = new Intent(ServiceManager.ACTION_SERVICE_DIE);
+                                intent.putExtra("name", entry.getKey());
+                                ServiceManager.sApplication.sendBroadcast(intent);
                             }
                         }
                     }
@@ -138,16 +149,10 @@ public class ServiceProvider extends ContentProvider {
         return null;
     }
 
-    //服务名：进程ID
-    private static Hashtable<String, Recorder> allServiceList = new Hashtable<>();
-    //进程ID：进程Binder
-    private static Hashtable<Integer, IBinder> processBinder = new Hashtable<>();
-
     public static class Recorder {
         public Integer pid;
         public String interfaceClass;
     }
-
 
     @Override
     public boolean onCreate() {

@@ -68,4 +68,8 @@ public class LocalServiceManager {
         LocalServiceFetcher fetcher = SYSTEM_SERVICE_MAP.get(name);
         return fetcher == null ? null : fetcher.getService();
     }
+
+    public static void unRegister(String name){
+        SYSTEM_SERVICE_MAP.remove(name);
+    }
 }

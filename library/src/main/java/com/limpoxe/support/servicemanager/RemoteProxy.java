@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.limpoxe.support.servicemanager.compat.BundleCompat;
 import com.limpoxe.support.servicemanager.local.LocalServiceManager;
@@ -48,9 +49,18 @@ public class RemoteProxy {
                             } else if (desciptpr != null && iBinder != null) {
 
                                 return MethodRouter.routerToBinder(desciptpr, iBinder, argsBundle);
+                            } else {
+                                //服务所在进程已死,重启服务进程可自动恢复
+                                Log.w("RemoteProxy", "not active，service May Died！");
                             }
 
-                           return null;
+                            if (!method.getReturnType().isPrimitive()) {
+                                //分包装类，返回null
+                                return null;
+                            } else {
+                                //不是包装类，默认返回值没法给，throws RemoteExecption
+                                throw new IllegalStateException("Service not active! Remote process may died");
+                            }
                         }
 
                         private void prepare(Bundle argsBundle) throws Throwable {

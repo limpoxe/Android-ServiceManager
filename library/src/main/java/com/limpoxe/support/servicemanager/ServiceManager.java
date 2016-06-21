@@ -1,6 +1,10 @@
 package com.limpoxe.support.servicemanager;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Process;
 
@@ -11,6 +15,8 @@ import com.limpoxe.support.servicemanager.local.LocalServiceManager;
  * Created by cailiming on 16/6/3.
  */
 public class ServiceManager {
+
+    public static final String ACTION_SERVICE_DIE = "com.limpoxe.support.action.SERVICE_DIE";
 
     public static Application sApplication;
 
@@ -24,6 +30,14 @@ public class ServiceManager {
         BundleCompat.putBinder(argsBundle, "binder", new ProcessBinder(ProcessBinder.class.getName() + "_" + pid));
         ServiceManager.sApplication.getContentResolver().call(ServiceProvider.buildUri(),
                 ServiceProvider.REPORT_BINDER, null, argsBundle);
+
+        ServiceManager.sApplication.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //服务进程挂掉以后移除客户端的代理缓存
+                LocalServiceManager.unRegister(intent.getStringExtra("name"));
+            }
+        }, new IntentFilter(ACTION_SERVICE_DIE));
     }
 
     public static Object getService(String name) {
