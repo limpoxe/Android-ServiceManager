@@ -7,7 +7,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.limpoxe.support.servicemanager.compat.BundleCompat;
-import com.limpoxe.support.servicemanager.local.LocalServiceManager;
 import com.limpoxe.support.servicemanager.util.ParamUtil;
 
 import java.lang.reflect.InvocationHandler;
@@ -19,11 +18,11 @@ import java.lang.reflect.Proxy;
  */
 public class RemoteProxy {
 
-    public static Object getProxyService(final String name, String iFaceClassName) {
+    public static Object getProxyService(final String name, String iFaceClassName, ClassLoader classloader) {
         try {
-            ClassLoader cl = LocalServiceManager.class.getClassLoader();
-            Class clientClass = LocalServiceManager.class.getClassLoader().loadClass(iFaceClassName);
-            return Proxy.newProxyInstance(cl, new Class[]{clientClass},
+            //classloader
+            Class clientClass = classloader.loadClass(iFaceClassName);
+            return Proxy.newProxyInstance(classloader, new Class[]{clientClass},
                     new InvocationHandler() {
 
                         Boolean isInProviderProcess;
@@ -55,7 +54,7 @@ public class RemoteProxy {
                             }
 
                             if (!method.getReturnType().isPrimitive()) {
-                                //分包装类，返回null
+                                //是包装类，返回null
                                 return null;
                             } else {
                                 //不是包装类，默认返回值没法给，throws RemoteExecption

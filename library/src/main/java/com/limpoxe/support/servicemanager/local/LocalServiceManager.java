@@ -16,7 +16,7 @@ public class LocalServiceManager {
     private LocalServiceManager() {
     }
 
-    public static synchronized void registerClass(final String name, final String serviceClass) {
+    public static synchronized void registerClass(final String name, final Class serviceClass) {
         Log.d("LocalServiceManager", "registerClass service " + name + " @ " + serviceClass);
         if (!SYSTEM_SERVICE_MAP.containsKey(name)) {
             LocalServiceFetcher fetcher = new LocalServiceFetcher() {
@@ -25,7 +25,7 @@ public class LocalServiceManager {
 
                     Object object = null;
                     try {
-                        object = Class.forName(serviceClass).newInstance();
+                        object = serviceClass.newInstance();
                         mGroupId = String.valueOf(Process.myPid());
 
                         Log.d("LocalServiceManager", "create service instance @ pid " + Process.myPid());
@@ -33,8 +33,6 @@ public class LocalServiceManager {
                     } catch (InstantiationException e) {
                         e.printStackTrace();
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
                         e.printStackTrace();
                     }
                     return object;

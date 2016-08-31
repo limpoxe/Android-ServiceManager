@@ -41,6 +41,10 @@ public class ServiceManager {
     }
 
     public static Object getService(String name) {
+        return getService(name, ServiceManager.class.getClassLoader());
+    }
+
+    public static Object getService(String name, ClassLoader interfaceClassloader) {
 
         //首先在当前进程内查询
         Object service = LocalServiceManager.getService(name);
@@ -54,7 +58,7 @@ public class ServiceManager {
                 String interfaceClassName = bundle.getString(ServiceProvider.QUERY_INTERFACE_RESULT);
 
                 if (interfaceClassName != null) {
-                    service = RemoteProxy.getProxyService(name, interfaceClassName);
+                    service = RemoteProxy.getProxyService(name, interfaceClassName, interfaceClassloader);
                     //缓存Proxy到本地
                     if (service != null) {
                         LocalServiceManager.registerInstance(name, service);
@@ -66,8 +70,28 @@ public class ServiceManager {
         return service;
     }
 
-    //给当前进程发布一个服务, 发布后其他进程可使用此服务
-    public static void publishService(String name, String serviceClass) {
+    /**
+     * 给当前进程发布一个服务, 发布后其他进程可使用此服务
+     */
+    public static void publishService(String name, String className) {
+        publishService(name, className, ServiceManager.class.getClassLoader());
+    }
+
+    /**
+     * 给当前进程发布一个服务, 发布后其他进程可使用此服务
+     */
+    public static void publishService(String name, String className, ClassLoader classloader) {
+        try {
+            publishService(name, classloader.loadClass(className));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 给当前进程发布一个服务, 发布后其他进程可使用此服务
+     */
+    public static void publishService(String name, Class serviceClass) {
 
         //先缓存到本地
         LocalServiceManager.registerClass(name, serviceClass);
@@ -75,18 +99,19 @@ public class ServiceManager {
         int pid = Process.myPid();
         Bundle argsBundle = new Bundle();
         argsBundle.putInt(ServiceProvider.PID, pid);
-        try {
-            String face = Class.forName(serviceClass).getInterfaces()[0].getName();
-            argsBundle.putString(ServiceProvider.INTERFACE, face);
-            //再发布到远端
-            sApplication.getContentResolver().call(ServiceProvider.buildUri(),
-                    ServiceProvider.PUBLISH_SERVICE, name, argsBundle);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+
+        //classLoader
+        String serviceInterfaceClassName = serviceClass.getInterfaces()[0].getName();
+        argsBundle.putString(ServiceProvider.INTERFACE, serviceInterfaceClassName);
+        //再发布到远端
+        sApplication.getContentResolver().call(ServiceProvider.buildUri(),
+                ServiceProvider.PUBLISH_SERVICE, name, argsBundle);
+
     }
 
-    //清理当前进程发布的所有服务
+    /**
+     * 清理当前进程发布的所有服务
+     */
     public static void unPublishAllService() {
         int pid = Process.myPid();
         Bundle argsBundle = new Bundle();
