@@ -1,6 +1,7 @@
 package com.limpoxe.support.servicemanager.local;
 
 import android.os.Process;
+import android.util.Log;
 
 import java.util.Hashtable;
 
@@ -16,6 +17,7 @@ public class LocalServiceManager {
     }
 
     public static synchronized void registerClass(final String name, final String serviceClass) {
+        Log.d("LocalServiceManager", "registerClass service " + name + " @ " + serviceClass);
         if (!SYSTEM_SERVICE_MAP.containsKey(name)) {
             LocalServiceFetcher fetcher = new LocalServiceFetcher() {
                 @Override
@@ -24,8 +26,9 @@ public class LocalServiceManager {
                     Object object = null;
                     try {
                         object = Class.forName(serviceClass).newInstance();
-
                         mGroupId = String.valueOf(Process.myPid());
+
+                        Log.d("LocalServiceManager", "create service instance @ pid " + Process.myPid());
 
                     } catch (InstantiationException e) {
                         e.printStackTrace();
@@ -43,6 +46,8 @@ public class LocalServiceManager {
     }
 
     public static synchronized void registerInstance(final String name, final Object service) {
+        Log.d("LocalServiceManager", "registerInstance service " + name + " @ " + service);
+
         Class[] faces = service.getClass().getInterfaces();
         if (faces == null || faces.length == 0) {
             return;
@@ -54,6 +59,8 @@ public class LocalServiceManager {
 
                     Object object = service;
                     mGroupId = String.valueOf(Process.myPid());
+
+                    Log.d("LocalServiceManager", "create service instance @ pid " + Process.myPid());
 
                     return object;
                 }
@@ -70,6 +77,7 @@ public class LocalServiceManager {
     }
 
     public static void unRegister(String name){
+        Log.d("LocalServiceManager", "unRegister service " + name);
         SYSTEM_SERVICE_MAP.remove(name);
     }
 }

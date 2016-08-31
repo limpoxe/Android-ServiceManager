@@ -31,6 +31,7 @@ public class ServiceProvider extends ContentProvider {
     public static final String REPORT_BINDER = "report_binder";
     public static final String PUBLISH_SERVICE = "publish_service";
     public static final String PUBLISH_SERVICE_BINDER = "publish_service_binder";
+    public static final String UNPUBLISH_SERVICE = "unpublish_service";
     public static final String CALL_SERVICE = "call_service";
     public static final String QUERY_SERVICE = "query_service";
     public static final String QUERY_SERVICE_RESULT_IS_IN_PROVIDIDER_PROCESS = "query_service_result_is_in_provider_process";
@@ -38,6 +39,11 @@ public class ServiceProvider extends ContentProvider {
     public static final String QUERY_SERVICE_RESULT_DESCRIPTOR = "query_service_result_desciptor";
     public static final String QUERY_INTERFACE = "query_interface";
     public static final String QUERY_INTERFACE_RESULT = "query_interface_result";
+
+    public static final String PID = "pid";
+    public static final String BINDER = "binder";
+    public static final String NAME = "name";
+    public static final String INTERFACE = "interface";
 
     private static Uri CONTENT_URI;
 
@@ -66,26 +72,14 @@ public class ServiceProvider extends ContentProvider {
                 + ", arg = " + arg);
 
         if (method.equals(REPORT_BINDER)) {
-            final int pid = extras.getInt("pid");
-            IBinder iBinder = BundleCompat.getBinder(extras, "binder");
+            final int pid = extras.getInt(PID);
+            IBinder iBinder = BundleCompat.getBinder(extras, BINDER);
             processBinder.put(pid, iBinder);
             try {
                 iBinder.linkToDeath(new IBinder.DeathRecipient() {
                     @Override
                     public void binderDied() {
-                        processBinder.remove(pid);
-                        Iterator<Map.Entry<String, Recorder>> iterator = allServiceList.entrySet().iterator();
-                        while(iterator.hasNext()) {
-                            Map.Entry<String, Recorder> entry = iterator.next();
-                            if (entry.getValue().pid.equals(pid)) {
-                                Log.w("ServiceProvider", "Service Die, remove");
-                                iterator.remove();
-                                //通知持有服务的客户端清理缓存
-                                Intent intent = new Intent(ServiceManager.ACTION_SERVICE_DIE);
-                                intent.putExtra("name", entry.getKey());
-                                ServiceManager.sApplication.sendBroadcast(intent);
-                            }
-                        }
+                        removeAllRecordorForPid(pid);
                     }
                 }, 0);
             } catch (RemoteException e) {
@@ -95,8 +89,8 @@ public class ServiceProvider extends ContentProvider {
         } else if (method.equals(PUBLISH_SERVICE)) {
 
             String serviceName = arg;
-            int pid = extras.getInt("pid");
-            String interfaceClass = extras.getString("interface");
+            int pid = extras.getInt(PID);
+            String interfaceClass = extras.getString(INTERFACE);
             IBinder binder =  processBinder.get(pid);
             if (binder != null && binder.isBinderAlive()) {
                 Recorder recorder = new Recorder();
@@ -109,6 +103,12 @@ public class ServiceProvider extends ContentProvider {
 
             return null;
 
+        } else if (method.equals(UNPUBLISH_SERVICE)) {
+
+            int pid = extras.getInt(PID);
+            removeAllRecordorForPid(pid);
+
+            return null;
         } else if (method.equals(CALL_SERVICE)) {
 
             return MethodRouter.routerToInstance(extras);
@@ -147,6 +147,24 @@ public class ServiceProvider extends ContentProvider {
 
         }
         return null;
+    }
+
+    private void removeAllRecordorForPid(int pid) {
+        Log.w("ServiceProvider", "remove all service recordor for pid" + pid);
+
+        //服务提供方进程挂了,或者服务提供方进程主动通知清理服务, 则先清理服务注册表, 再通知所有客户端清理自己的本地缓存
+        processBinder.remove(pid);
+        Iterator<Map.Entry<String, Recorder>> iterator = allServiceList.entrySet().iterator();
+        while(iterator.hasNext()) {
+            Map.Entry<String, Recorder> entry = iterator.next();
+            if (entry.getValue().pid.equals(pid)) {
+                iterator.remove();
+                //通知持有服务的客户端清理缓存
+                Intent intent = new Intent(ServiceManager.ACTION_SERVICE_DIE_OR_CLEAR);
+                intent.putExtra(NAME, entry.getKey());
+                ServiceManager.sApplication.sendBroadcast(intent);
+            }
+        }
     }
 
     public static class Recorder {
