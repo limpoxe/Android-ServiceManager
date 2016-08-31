@@ -14,5 +14,11 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    buildTypes {
+        release {
+            buildConfigField "String", "BUILD_DATE", "\"${new Date().format('yyyy-MM-dd HH:mm:ss')}\""
+        }
+    }
 }
 
