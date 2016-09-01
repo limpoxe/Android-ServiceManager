@@ -23,18 +23,10 @@ public class LocalServiceManager {
                 @Override
                 public Object createService(int serviceId) {
 
-                    Object object = null;
-                    try {
-                        object = provider.getServiceClass().newInstance();
-                        mGroupId = String.valueOf(Process.myPid());
+                    Object object = provider.getServiceClass();
+                    mGroupId = String.valueOf(Process.myPid());
 
-                        Log.d("LocalServiceManager", "create service instance @ pid " + Process.myPid());
-
-                    } catch (InstantiationException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
+                    Log.d("LocalServiceManager", "create service instance @ pid " + Process.myPid());
                     return object;
                 }
             };
@@ -81,7 +73,7 @@ public class LocalServiceManager {
 
     public static abstract class ClassProvider {
 
-        public abstract Class getServiceClass();
+        public abstract Object getServiceClass();
 
         public abstract String getInterfaceName();
     }
