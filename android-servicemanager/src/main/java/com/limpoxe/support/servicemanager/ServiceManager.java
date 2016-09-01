@@ -138,4 +138,13 @@ public class ServiceManager {
                 ServiceProvider.UNPUBLISH_SERVICE, null, argsBundle);
     }
 
+    public static void unPublishService(String name) {
+        int pid = Process.myPid();
+        Bundle argsBundle = new Bundle();
+        argsBundle.putInt(ServiceProvider.PID, pid);
+        argsBundle.putString(ServiceProvider.NAME, name);
+        ContentProviderCompat.call(ServiceProvider.buildUri(),
+                ServiceProvider.UNPUBLISH_SERVICE, null, argsBundle);
+    }
+
 }

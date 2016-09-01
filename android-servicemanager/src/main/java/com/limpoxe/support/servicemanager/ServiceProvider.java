@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.limpoxe.support.servicemanager.compat.BundleCompat;
@@ -106,7 +107,13 @@ public class ServiceProvider extends ContentProvider {
         } else if (method.equals(UNPUBLISH_SERVICE)) {
 
             int pid = extras.getInt(PID);
-            removeAllRecordorForPid(pid);
+            String name = extras.getString(NAME);
+            if (TextUtils.isEmpty(name)) {
+                removeAllRecordorForPid(pid);
+            } else {
+                allServiceList.remove(name);
+                notifyClient(name);
+            }
 
             return null;
         } else if (method.equals(CALL_SERVICE)) {
@@ -159,12 +166,16 @@ public class ServiceProvider extends ContentProvider {
             Map.Entry<String, Recorder> entry = iterator.next();
             if (entry.getValue().pid.equals(pid)) {
                 iterator.remove();
-                //通知持有服务的客户端清理缓存
-                Intent intent = new Intent(ServiceManager.ACTION_SERVICE_DIE_OR_CLEAR);
-                intent.putExtra(NAME, entry.getKey());
-                ServiceManager.sApplication.sendBroadcast(intent);
+                notifyClient(entry.getKey());
             }
         }
+    }
+
+    private void notifyClient(String name) {
+        //通知持有服务的客户端清理缓存
+        Intent intent = new Intent(ServiceManager.ACTION_SERVICE_DIE_OR_CLEAR);
+        intent.putExtra(NAME, name);
+        ServiceManager.sApplication.sendBroadcast(intent);
     }
 
     public static class Recorder {
