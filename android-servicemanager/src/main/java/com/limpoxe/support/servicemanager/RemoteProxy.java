@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.limpoxe.support.servicemanager.compat.BundleCompat;
+import com.limpoxe.support.servicemanager.compat.ContentProviderCompat;
 import com.limpoxe.support.servicemanager.util.ParamUtil;
 
 import java.lang.reflect.InvocationHandler;
@@ -63,7 +64,7 @@ public class RemoteProxy {
                         }
 
                         private void prepare(Bundle argsBundle) throws Throwable {
-                            Bundle queryResult = ServiceManager.sApplication.getContentResolver().call(ServiceProvider.buildUri(),
+                            Bundle queryResult = ContentProviderCompat.call(ServiceProvider.buildUri(),
                                     ServiceProvider.QUERY_SERVICE, name, argsBundle);
                             if (queryResult != null) {
                                 isInProviderProcess = queryResult.getBoolean(ServiceProvider.QUERY_SERVICE_RESULT_IS_IN_PROVIDIDER_PROCESS, false);

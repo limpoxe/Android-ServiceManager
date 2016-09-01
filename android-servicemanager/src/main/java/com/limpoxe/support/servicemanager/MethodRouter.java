@@ -5,6 +5,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.limpoxe.support.servicemanager.compat.BundleCompat;
+import com.limpoxe.support.servicemanager.compat.ContentProviderCompat;
 import com.limpoxe.support.servicemanager.local.LocalServiceManager;
 import com.limpoxe.support.servicemanager.util.ParamUtil;
 
@@ -28,7 +29,7 @@ public class MethodRouter {
     }
 
     public static Object routerToProvider(String name, Bundle argsBundle) {
-        Bundle bundle = ServiceManager.sApplication.getContentResolver().call(ServiceProvider.buildUri(), ServiceProvider.CALL_SERVICE, name, argsBundle);
+        Bundle bundle = ContentProviderCompat.call(ServiceProvider.buildUri(), ServiceProvider.CALL_SERVICE, name, argsBundle);
         return ParamUtil.getResult(bundle);
     }
 

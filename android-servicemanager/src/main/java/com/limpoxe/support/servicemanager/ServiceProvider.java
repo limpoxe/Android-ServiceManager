@@ -54,7 +54,7 @@ public class ServiceProvider extends ContentProvider {
 
     public static Uri buildUri() {
         if (CONTENT_URI == null) {
-            CONTENT_URI = Uri.parse("content://"+ ServiceManager.sApplication.getPackageName() + "/call");
+            CONTENT_URI = Uri.parse("content://"+ ServiceManager.sApplication.getPackageName() + ".svcmgr/call");
         }
         return CONTENT_URI;
     }

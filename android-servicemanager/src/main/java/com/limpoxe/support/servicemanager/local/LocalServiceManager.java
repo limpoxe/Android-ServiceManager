@@ -16,8 +16,8 @@ public class LocalServiceManager {
     private LocalServiceManager() {
     }
 
-    public static synchronized void registerClass(final String name, final Class serviceClass) {
-        Log.d("LocalServiceManager", "registerClass service " + name + " @ " + serviceClass);
+    public static synchronized void registerClass(final String name, final ClassProvider provider) {
+        Log.d("LocalServiceManager", "registerClass service " + name);
         if (!SYSTEM_SERVICE_MAP.containsKey(name)) {
             LocalServiceFetcher fetcher = new LocalServiceFetcher() {
                 @Override
@@ -25,7 +25,7 @@ public class LocalServiceManager {
 
                     Object object = null;
                     try {
-                        object = serviceClass.newInstance();
+                        object = provider.getServiceClass().newInstance();
                         mGroupId = String.valueOf(Process.myPid());
 
                         Log.d("LocalServiceManager", "create service instance @ pid " + Process.myPid());
@@ -77,5 +77,12 @@ public class LocalServiceManager {
     public static void unRegister(String name){
         Log.d("LocalServiceManager", "unRegister service " + name);
         SYSTEM_SERVICE_MAP.remove(name);
+    }
+
+    public static abstract class ClassProvider {
+
+        public abstract Class getServiceClass();
+
+        public abstract String getInterfaceName();
     }
 }
