@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+repositories {
+    maven {
+        url 'https://dl.bintray.com/limpoxe/maven/'
+    }
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
@@ -18,5 +24,5 @@ android {
 }
 
 dependencies {
-    compile project(':android-servicemanager')
+    compile 'com.limpoxe.support:android-servicemanager:1.0.1@aar'
 }
