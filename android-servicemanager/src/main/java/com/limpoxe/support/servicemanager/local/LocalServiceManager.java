@@ -23,7 +23,7 @@ public class LocalServiceManager {
                 @Override
                 public Object createService(int serviceId) {
 
-                    Object object = provider.getServiceClass();
+                    Object object = provider.getServiceInstance();
                     mGroupId = String.valueOf(Process.myPid());
 
                     Log.d("LocalServiceManager", "create service instance @ pid " + Process.myPid());
@@ -73,7 +73,7 @@ public class LocalServiceManager {
 
     public static abstract class ClassProvider {
 
-        public abstract Object getServiceClass();
+        public abstract Object getServiceInstance();
 
         public abstract String getInterfaceName();
     }

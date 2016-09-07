@@ -90,10 +90,14 @@ public class ServiceManager {
     public static void publishService(String name, final String className, final ClassLoader classloader) {
         publishService(name, new LocalServiceManager.ClassProvider() {
             @Override
-            public Class getServiceClass() {
+            public Object getServiceInstance() {
                 try {
-                    return classloader.loadClass(className);
+                    return classloader.loadClass(className).newInstance();
                 } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
                 return null;
@@ -101,7 +105,12 @@ public class ServiceManager {
 
             @Override
             public String getInterfaceName() {
-                return getServiceClass().getInterfaces()[0].getName();
+                try {
+                    return classloader.loadClass(className).getInterfaces()[0].getName();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                return null;
             }
         });
     }

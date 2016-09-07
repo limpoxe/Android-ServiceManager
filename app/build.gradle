@@ -24,5 +24,6 @@ android {
 }
 
 dependencies {
-    compile 'com.limpoxe.support:android-servicemanager:1.0.1@aar'
+    compile project(':android-servicemanager')
+    //compile 'com.limpoxe.support:android-servicemanager:1.0.4-snapshot@aar'
 }

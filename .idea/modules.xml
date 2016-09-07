@@ -3,8 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Android-ServiceManager.iml" filepath="$PROJECT_DIR$/Android-ServiceManager.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android-servicemanager/library.iml" filepath="$PROJECT_DIR$/android-servicemanager/library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android-servicemanager/android-servicemanager.iml" filepath="$PROJECT_DIR$/android-servicemanager/android-servicemanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android-servicemanager/library.iml" filepath="$PROJECT_DIR$/android-servicemanager/library.iml" />
     </modules>
   </component>
 </project>
