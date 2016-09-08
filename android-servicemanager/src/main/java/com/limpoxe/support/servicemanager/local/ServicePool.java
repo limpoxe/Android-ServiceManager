@@ -8,25 +8,27 @@ import java.util.Hashtable;
 /**
  * Created by cailiming on 16/1/1.
  */
-public class LocalServiceManager {
+public class ServicePool {
 
-    private static final Hashtable<String, LocalServiceFetcher> SYSTEM_SERVICE_MAP =
-            new Hashtable<String, LocalServiceFetcher>();
+    private static final String TAG = ServicePool.class.getSimpleName();
 
-    private LocalServiceManager() {
+    private static final Hashtable<String, ServiceFetcher> SYSTEM_SERVICE_MAP =
+            new Hashtable<String, ServiceFetcher>();
+
+    private ServicePool() {
     }
 
     public static synchronized void registerClass(final String name, final ClassProvider provider) {
-        Log.d("LocalServiceManager", "registerClass service " + name);
+        Log.d(TAG, "registerClass service " + name);
         if (!SYSTEM_SERVICE_MAP.containsKey(name)) {
-            LocalServiceFetcher fetcher = new LocalServiceFetcher() {
+            ServiceFetcher fetcher = new ServiceFetcher() {
                 @Override
                 public Object createService(int serviceId) {
 
                     Object object = provider.getServiceInstance();
                     mGroupId = String.valueOf(Process.myPid());
 
-                    Log.d("LocalServiceManager", "create service instance @ pid " + Process.myPid());
+                    Log.d(TAG, "create service instance @ pid " + Process.myPid());
                     return object;
                 }
             };
@@ -36,21 +38,21 @@ public class LocalServiceManager {
     }
 
     public static synchronized void registerInstance(final String name, final Object service) {
-        Log.d("LocalServiceManager", "registerInstance service " + name + " @ " + service);
+        Log.d(TAG, "registerInstance service " + name + " @ " + service);
 
         Class[] faces = service.getClass().getInterfaces();
         if (faces == null || faces.length == 0) {
             return;
         }
         if (!SYSTEM_SERVICE_MAP.containsKey(name)) {
-            LocalServiceFetcher fetcher = new LocalServiceFetcher() {
+            ServiceFetcher fetcher = new ServiceFetcher() {
                 @Override
                 public Object createService(int serviceId) {
 
                     Object object = service;
                     mGroupId = String.valueOf(Process.myPid());
 
-                    Log.d("LocalServiceManager", "create service instance @ pid " + Process.myPid());
+                    Log.d(TAG, "create service instance @ pid " + Process.myPid());
 
                     return object;
                 }
@@ -62,12 +64,12 @@ public class LocalServiceManager {
 
 
     public static Object getService(String name) {
-        LocalServiceFetcher fetcher = SYSTEM_SERVICE_MAP.get(name);
+        ServiceFetcher fetcher = SYSTEM_SERVICE_MAP.get(name);
         return fetcher == null ? null : fetcher.getService();
     }
 
     public static void unRegister(String name){
-        Log.d("LocalServiceManager", "unRegister service " + name);
+        Log.d(TAG, "unRegister service " + name);
         SYSTEM_SERVICE_MAP.remove(name);
     }
 

@@ -10,7 +10,7 @@ import android.os.Process;
 
 import com.limpoxe.support.servicemanager.compat.BundleCompat;
 import com.limpoxe.support.servicemanager.compat.ContentProviderCompat;
-import com.limpoxe.support.servicemanager.local.LocalServiceManager;
+import com.limpoxe.support.servicemanager.local.ServicePool;
 
 /**
  * Created by cailiming on 16/6/3.
@@ -36,7 +36,7 @@ public class ServiceManager {
             @Override
             public void onReceive(Context context, Intent intent) {
                 //服务进程挂掉以后 或者服务进程主动通知清理时,移除客户端的代理缓存
-                LocalServiceManager.unRegister(intent.getStringExtra(ServiceProvider.NAME));
+                ServicePool.unRegister(intent.getStringExtra(ServiceProvider.NAME));
             }
         }, new IntentFilter(ACTION_SERVICE_DIE_OR_CLEAR));
     }
@@ -54,7 +54,7 @@ public class ServiceManager {
     public static Object getService(String name, ClassLoader interfaceClassloader) {
 
         //首先在当前进程内查询
-        Object service = LocalServiceManager.getService(name);
+        Object service = ServicePool.getService(name);
 
         if (service == null) {
             //向远端器查询
@@ -68,7 +68,7 @@ public class ServiceManager {
                     service = RemoteProxy.getProxyService(name, interfaceClassName, interfaceClassloader);
                     //缓存Proxy到本地
                     if (service != null) {
-                        LocalServiceManager.registerInstance(name, service);
+                        ServicePool.registerInstance(name, service);
                     }
                 }
             }
@@ -88,7 +88,7 @@ public class ServiceManager {
      * 给当前进程发布一个服务, 发布后其他进程可使用此服务
      */
     public static void publishService(String name, final String className, final ClassLoader classloader) {
-        publishService(name, new LocalServiceManager.ClassProvider() {
+        publishService(name, new ServicePool.ClassProvider() {
             @Override
             public Object getServiceInstance() {
                 try {
@@ -118,10 +118,10 @@ public class ServiceManager {
     /**
      * 给当前进程发布一个服务, 发布后其他进程可使用此服务
      */
-    public static void publishService(String name, final LocalServiceManager.ClassProvider provider) {
+    public static void publishService(String name, final ServicePool.ClassProvider provider) {
 
         //先缓存到本地
-        LocalServiceManager.registerClass(name, provider);
+        ServicePool.registerClass(name, provider);
 
         int pid = Process.myPid();
         Bundle argsBundle = new Bundle();

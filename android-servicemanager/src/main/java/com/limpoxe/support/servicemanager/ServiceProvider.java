@@ -13,7 +13,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.limpoxe.support.servicemanager.compat.BundleCompat;
-import com.limpoxe.support.servicemanager.local.LocalServiceManager;
+import com.limpoxe.support.servicemanager.local.ServicePool;
 
 import java.lang.reflect.Proxy;
 import java.util.Iterator;
@@ -131,7 +131,7 @@ public class ServiceProvider extends ContentProvider {
             String serviceName = arg;
             if (allServiceList.containsKey(serviceName)) {
 
-                Object instance = LocalServiceManager.getService(serviceName);
+                Object instance = ServicePool.getService(serviceName);
 
                 Bundle bundle = new Bundle();
                 if (instance != null && !Proxy.isProxyClass(instance.getClass())) {

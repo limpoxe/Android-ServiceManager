@@ -3,13 +3,13 @@ package com.limpoxe.support.servicemanager.local;
 /**
  * Created by cailiming on 16/1/1.
  */
-public abstract class LocalServiceFetcher {
+public abstract class ServiceFetcher {
     int mServiceId;
     String mGroupId;
     private Object mCachedInstance;
 
     public final Object getService() {
-        synchronized (LocalServiceFetcher.this) {
+        synchronized (ServiceFetcher.this) {
             Object service = mCachedInstance;
             if (service != null) {
                 return service;

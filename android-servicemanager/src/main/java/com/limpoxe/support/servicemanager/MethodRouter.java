@@ -6,7 +6,7 @@ import android.os.RemoteException;
 
 import com.limpoxe.support.servicemanager.compat.BundleCompat;
 import com.limpoxe.support.servicemanager.compat.ContentProviderCompat;
-import com.limpoxe.support.servicemanager.local.LocalServiceManager;
+import com.limpoxe.support.servicemanager.local.ServicePool;
 import com.limpoxe.support.servicemanager.util.ParamUtil;
 
 import java.lang.reflect.InvocationTargetException;
@@ -38,7 +38,7 @@ public class MethodRouter {
         String name = extras.getString(ParamUtil.service_name);
         String methodName = extras.getString(ParamUtil.method_name);;
 
-        Object service = LocalServiceManager.getService(name);
+        Object service = ServicePool.getService(name);
         Object result = null;
         if (service != null && !Proxy.isProxyClass(service.getClass())) {
             Method[] methods = service.getClass().getInterfaces()[0].getDeclaredMethods();
