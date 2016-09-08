@@ -16,9 +16,9 @@ import com.limpoxe.support.servicemanager.compat.BundleCompat;
 import com.limpoxe.support.servicemanager.local.LocalServiceManager;
 
 import java.lang.reflect.Proxy;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -49,9 +49,9 @@ public class ServiceProvider extends ContentProvider {
     private static Uri CONTENT_URI;
 
     //服务名：进程ID
-    private static Hashtable<String, Recorder> allServiceList = new Hashtable<>();
+    private static ConcurrentHashMap<String, Recorder> allServiceList = new ConcurrentHashMap<>();
     //进程ID：进程Binder
-    private static Hashtable<Integer, IBinder> processBinder = new Hashtable<>();
+    private static ConcurrentHashMap<Integer, IBinder> processBinder = new ConcurrentHashMap<>();
 
     public static Uri buildUri() {
         if (CONTENT_URI == null) {
