@@ -1,1 +1,1 @@
-include ':app', ':android-servicemanager'
+include ':app', ':library'
